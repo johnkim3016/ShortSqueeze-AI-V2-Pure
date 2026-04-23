@@ -1,0 +1,26 @@
+# ShortSqueeze AI 조직도 (Organization Chart)
+
+## 1. 리더십 (Leadership)
+- **창립자/전략가**: 김도준 (Kim Sabu) - 'The Wall' 전략 및 사업 방향 결정.
+- **AI 기술 파트너**: Antigravity (Hermes/Gemini 1.5 Pro) - 시스템 구축 및 자동화 총괄.
+
+## 2. 핵심 실행 팀 (Core Teams)
+
+### 🕵️ 연구원 (Researcher Agent)
+- **주요 업무**: 실시간 숏 인터레스트, FTD, 대차이자율 데이터 수집 및 'The Wall' 매커니즘 기반 분석.
+- **도구**: Tavily Search, Gemini 1.5 Pro, Fintel Scraper.
+
+### 💻 개발자 (Developer Agent)
+- **주요 업무**: Next.js 기반 라이브 북 대시보드 구축, 트레이딩뷰 위젯 연동, 시스템 배포.
+- **도구**: Next.js 14+, Tailwind CSS, Supabase, Railway.
+
+### ✍️ 콘텐츠 매니저 (Content Manager Agent)
+- **주요 업무**: 분석 데이터를 팍스경제TV 방송 대본 및 유튜브 스크립트로 변환, '더 월' 북 원고 업데이트.
+- **도구**: GPT-4o-mini (빠른 요약), Gemini 1.5 Pro (긴 문맥 분석).
+
+### 🛡️ 품질 검수팀 (QA/Critic Agent)
+- **주요 업무**: 생성된 모든 데이터의 팩트체크, 'The Wall' 투자 원칙 부합 여부 최종 검증 및 반려.
+- **도구**: Cross-reference Reasoning, Fact-checking Prompts.
+
+---
+**보고 체계**: 모든 결과물은 QA팀의 승인 후 콘텐츠 매니저를 통해 대시보드 및 방송 시스템으로 송출됨.
