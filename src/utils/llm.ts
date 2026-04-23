@@ -4,8 +4,8 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const MODELS = {
-  default: "gemini-1.5-flash-latest",
-  premium: "gemini-1.5-pro-latest",
+  default: "gemini-1.5-flash",
+  premium: "gemini-1.5-pro",
 };
 
 type ModelType = keyof typeof MODELS;
