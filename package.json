@@ -1,35 +1,28 @@
 {
   "name": "shortsqueeze-ai",
-  "version": "1.0.0",
-  "description": "Real-time US Stock Short Squeeze Analysis & Interactive Web-App Book Engine",
-  "main": "src/index.ts",
+  "version": "2.0.0",
+  "description": "ShortSqueeze AI 2.0 - Real-time US Stock Short Squeeze Analysis",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start-ai": "ts-node src/index.ts",
-    "research": "ts-node src/agents/researcher.ts",
-    "start-worker": "ts-node src/worker.ts",
-    "dev": "npm run dev --prefix dashboard",
-    "start-mcp": "ts-node src/mcp-server.ts"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
-  "keywords": [
-    "ai",
-    "short-squeeze",
-    "stock",
-    "trading"
-  ],
-  "author": "Kim Sabu & Antigravity",
-  "license": "ISC",
   "dependencies": {
+    "next": "^15.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "framer-motion": "^11.18.2",
     "@google/generative-ai": "^0.24.1",
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "axios": "^1.6.8",
-    "dotenv": "^16.4.5",
-    "node-cron": "^4.2.1"
+    "axios": "^1.6.8"
   },
   "devDependencies": {
     "@types/node": "^20.12.7",
-    "@types/node-cron": "^3.0.11",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.4.5",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0"
   }
 }
