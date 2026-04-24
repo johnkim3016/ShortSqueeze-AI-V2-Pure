@@ -1,33 +1,34 @@
-import { ResearcherAgent } from '../agents/researcher';
-import { CriticAgent } from '../agents/critic';
-import { ContentManagerAgent } from '../agents/content-manager';
+import { ResearcherAgent } from '../../agents/researcher';
+import { CriticAgent } from '../../agents/critic';
+import { ContentManagerAgent } from '../../agents/content-manager';
 
 export class AgentEngine {
   /**
-   * 정예 에이전트 연합(Researcher-Critic-Editor) 구동
+   * 유폐되었던 진짜 정예 에이전트 연합을 다시 소환하여 구동
    */
   static async runAnalysis(ticker: string): Promise<string> {
-    console.log(`[AgentEngine] Starting autonomous analysis for ${ticker}...`);
+    console.log(`[AgentEngine] SOVEREIGN COMMAND: Summoning Real Agents for ${ticker}...`);
     
+    // 진짜 장군들 소환
     const researcher = new ResearcherAgent();
     const critic = new CriticAgent();
     const editor = new ContentManagerAgent();
 
     try {
-      // 1. Researcher: 데이터 수집 및 초안 작성
-      const rawData = `Real-time Market Data for ${ticker}: Volume Surge Detected, Short Interest High.`;
-      const researchReport = await researcher.analyzeStock(ticker, rawData);
+      // 1. 진짜 Researcher: 실시간 SearchService와 LLMService를 사용하여 정밀 분석
+      const researchReport = await researcher.analyzeStock(ticker);
+      if (!researchReport) throw new Error("Researcher failed to generate report");
       
-      // 2. Critic: 리포트 검증 및 비평
-      const critique = await critic.reviewReport(rawData, researchReport);
+      // 2. 진짜 Critic: 'The Wall' 원칙에 따라 리포트 검수
+      const critique = await critic.reviewReport("Real-time Data Sync", researchReport);
       
-      // 3. Editor: 최종 리포트 완성 및 대본 생성
-      const finalReport = await editor.generateScript(ticker, `${researchReport}\n\n[Critique]: ${critique}`);
+      // 3. 진짜 ContentManager: 최종 승인된 데이터를 바탕으로 대본 및 리포트 완성
+      const finalReport = await editor.generateScript(ticker, `${researchReport}\n\n[CRITIQUE]: ${critique}`);
       
       return finalReport;
     } catch (e) {
-      console.error("Agent Engine failed:", e);
-      return "분석 엔진 가동 중 오류가 발생했습니다. MCP 연결을 확인하십시오.";
+      console.error("[AgentEngine] CRITICAL FAILURE:", e);
+      return "분석 엔진의 진짜 심장을 가동하는 중 오류가 발생했습니다. 로직 연결 상태를 확인하십시오.";
     }
   }
 }
