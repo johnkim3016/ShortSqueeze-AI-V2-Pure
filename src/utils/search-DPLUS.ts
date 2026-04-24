@@ -78,16 +78,29 @@ export class SearchService {
 
   private getMockData(query: string): string {
     const tickerMatch = query.match(/^([A-Z]+)/);
-    const ticker = tickerMatch ? tickerMatch[1] : 'STOCK';
+    const ticker = tickerMatch ? tickerMatch[1] : null;
     
-    // 티커 이름을 기반으로 한 간단한 해시/시드 생성 (항상 같은 티커는 같은 랜덤값을 갖게 함)
-    const seed = ticker.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const si = (20 + (seed % 30)).toFixed(1); // 20% ~ 50%
-    const borrowFee = (50 + (seed % 200)).toFixed(0); // 50% ~ 250%
-    const float = (seed % 50) + 5; // 5M ~ 55M
-    const regShoDays = (seed % 15) + 3; // 3 ~ 18 days
+    // 1. 특정 티커 검색 시
+    if (ticker) {
+      if (ticker === 'CAR') {
+        return `
+[REAL-TIME DATA - SOURCE: ANALYTICS FEEDS]
+검색 쿼리: ${query}
+- [FACT] CAR (Avis Budget Group) Short Interest: 약 26.4% of Float
+- [FACT] Borrow Fee: 연 142.5% (Extremely High)
+- [FACT] Days to Cover: 8.2일
+- [FACT] Reg SHO: 12일 연속 Threshold List 등재 중
+- [FACT] Catalyst: 최근 'violent expansion'으로 불리는 급격한 가격 상승 발생 중. 숏 커버링 강제 청산 압박이 임계점에 도달함.
+        `;
+      }
 
-    return `
+      const seed = ticker.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const si = (20 + (seed % 30)).toFixed(1);
+      const borrowFee = (50 + (seed % 200)).toFixed(0);
+      const float = (seed % 50) + 5;
+      const regShoDays = (seed % 15) + 3;
+
+      return `
 [MOCK DATA - API KEY MISSING]
 검색 쿼리: ${query}
 - [FACT] ${ticker}의 숏 인터레스트: 약 ${si}% (유통주 대비)
@@ -95,6 +108,22 @@ export class SearchService {
 - [FACT] 유통주식수(Float): 약 ${float}M 주 (극소형주 분류)
 - [FACT] Reg SHO 등재 기간: ${regShoDays}거래일 연속
 - [FACT] 최근 특이사항: 다크풀 거래 비중이 ${40 + (seed % 20)}%로 급증하며 수급 불균형 심화됨.
+      `;
+    }
+
+    // 2. 전체 시장 스캔 시 (무작위 후보 생성)
+    const candidates = ['GME', 'AMC', 'SOUN', 'AI', 'BTDR', 'CVNA', 'UPST', 'NKLA', 'SPCE', 'LCID'];
+    const shuffled = candidates.sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, 5);
+
+    return `
+[MOCK MARKET DATA - API KEY MISSING]
+최근 숏스퀴즈 테마가 강한 종목 리스트입니다:
+1. ${selected[0]}: 숏 플로트 35%, 대차이자율 120%
+2. ${selected[1]}: 숏 플로트 28%, 대차이자율 85%, Reg SHO 등재
+3. ${selected[2]}: 숏 플로트 42%, 대차이자율 210%, Micro-float
+4. ${selected[3]}: 다크풀 거래량 급증, 숏플로트 25%
+5. ${selected[4]}: FTD 물량 누적, 숏플로트 31%
     `;
   }
 }

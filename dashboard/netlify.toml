@@ -1,9 +1,0 @@
-[build]
-  command = "npm run build"
-
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[build.environment]
-  NODE_VERSION = "20"
-  # 여기에 필요한 환경 변수(예: API_KEY)를 나중에 Netlify 대시보드나 MCP를 통해 추가할 수 있습니다.

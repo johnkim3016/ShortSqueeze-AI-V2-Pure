@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>US Stock Volume Surge Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #e5e7eb; }
+        .glass { background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .surge-yellow { color: #facc15; background: rgba(250, 204, 21, 0.1); border: 1px solid rgba(250, 204, 21, 0.2); }
+        .surge-red { color: #ef4444; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); }
+        .squeeze-tag { background: linear-gradient(135deg, #f97316 0%, #ef4444 100%); color: white; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+        .animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header & Controls -->
+        <div class="glass rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div>
+                <h1 class="text-2xl font-extrabold tracking-tight flex items-center gap-3">
+                    <i data-lucide="zap" class="text-indigo-500 fill-indigo-500"></i>
+                    US Stock Volume Surge Scanner
+                </h1>
+                <p class="text-zinc-500 text-sm mt-1">S&P 500, Nasdaq 100, Russell 2000 & Squeeze Candidates</p>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end mr-4">
+                    <span class="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Last Update</span>
+                    <span id="last-update" class="text-sm font-mono text-zinc-300">Never Scanned</span>
+                </div>
+                
+                <button id="scan-btn" onclick="startScan()" class="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i data-lucide="play" size="18"></i>
+                    <span>스캔 시작</span>
+                </button>
+
+                <div class="flex items-center gap-2 bg-zinc-900/50 p-1 rounded-xl border border-zinc-800">
+                    <button onclick="toggleAuto(true)" id="auto-on" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all">AUTO</button>
+                    <button onclick="toggleAuto(false)" id="auto-off" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-800 text-zinc-400">OFF</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progress-container" class="hidden glass rounded-2xl p-4 overflow-hidden relative">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2">
+                    <i data-lucide="loader-2" size="14" class="animate-spin"></i>
+                    Scanning Market...
+                </span>
+                <span id="progress-text" class="text-xs font-mono text-zinc-400">0%</span>
+            </div>
+            <div class="w-full bg-zinc-900 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="glass rounded-3xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-zinc-900/50 text-zinc-500 text-[11px] uppercase font-black tracking-widest border-b border-zinc-800">
+                            <th class="px-6 py-4">순위</th>
+                            <th class="px-6 py-4">티커</th>
+                            <th class="px-6 py-4">현재가</th>
+                            <th class="px-6 py-4">가격변화%</th>
+                            <th class="px-6 py-4 text-center">RVOL</th>
+                            <th class="px-6 py-4">거래량 (20D Avg)</th>
+                            <th class="px-6 py-4 text-right">점수</th>
+                            <th class="px-6 py-4 text-center">차트</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                        <!-- Results will be injected here -->
+                        <tr>
+                            <td colspan="8" class="px-6 py-24 text-center text-zinc-600 italic">
+                                <i data-lucide="search" size="48" class="mx-auto mb-4 opacity-10"></i>
+                                [스캔 시작] 버튼을 눌러 분석을 시작하세요.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass rounded-2xl p-4 flex flex-col">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold">Total Scanned</span>
+                <span id="stat-total" class="text-xl font-black text-zinc-200">0</span>
+            </div>
+            <div class="glass rounded-2xl p-4 flex flex-col">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold">Passed Filters</span>
+                <span id="stat-passed" class="text-xl font-black text-emerald-500">0</span>
+            </div>
+            <div class="glass rounded-2xl p-4 flex flex-col">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold">Avg RVOL</span>
+                <span id="stat-avg-rvol" class="text-xl font-black text-amber-500">0.00</span>
+            </div>
+            <div class="glass rounded-2xl p-4 flex flex-col">
+                <span class="text-[10px] text-zinc-500 uppercase font-bold">Scan Time</span>
+                <span id="stat-time" class="text-xl font-black text-indigo-400">0.0s</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let isAuto = false;
+        let autoTimer = null;
+
+        function initIcons() {
+            lucide.createIcons();
+        }
+
+        async function startScan() {
+            const btn = document.getElementById('scan-btn');
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/scan', { method: 'POST' });
+                pollStatus();
+            } catch (error) {
+                console.error("Scan error:", error);
+                btn.disabled = false;
+            }
+        }
+
+        async function pollStatus() {
+            const container = document.getElementById('progress-container');
+            const bar = document.getElementById('progress-bar');
+            const text = document.getElementById('progress-text');
+            const btn = document.getElementById('scan-btn');
+
+            container.classList.remove('hidden');
+
+            const timer = setInterval(async () => {
+                const res = await fetch('/api/status');
+                const status = await res.json();
+
+                text.innerText = `${status.progress}% (${status.current_index}/${status.total_tickers})`;
+                bar.style.width = `${status.progress}%`;
+
+                if (!status.is_scanning) {
+                    clearInterval(timer);
+                    container.classList.add('hidden');
+                    btn.disabled = false;
+                    updateDashboard(status);
+                    loadResults();
+                }
+            }, 1000);
+        }
+
+        async function loadResults() {
+            const res = await fetch('/api/results');
+            const results = await res.json();
+            
+            const body = document.getElementById('results-body');
+            body.innerHTML = '';
+
+            results.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-zinc-900/50 hover:bg-white/5 transition-all group";
+                
+                const changeColor = item.change >= 0 ? 'text-emerald-400' : 'text-red-400';
+                const rvolClass = item.rvol >= 5 ? 'surge-red' : (item.rvol >= 3 ? 'surge-yellow' : '');
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4 text-zinc-600 font-mono text-xs">${index + 1}</td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <span class="font-black text-white">${item.ticker}</span>
+                            ${item.is_squeeze ? '<span class="squeeze-tag text-[8px] px-1.5 py-0.5 rounded-md font-black">SQUEEZE</span>' : ''}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 font-mono text-sm">$${item.price}</td>
+                    <td class="px-6 py-4 font-bold ${changeColor}">${item.change >= 0 ? '+' : ''}${item.change}%</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-2 py-1 rounded-lg font-black text-sm ${rvolClass}">${item.rvol}x</span>
+                    </td>
+                    <td class="px-6 py-4 text-xs text-zinc-400">
+                        <div class="font-bold text-zinc-300">${formatNum(item.volume)}</div>
+                        <div class="opacity-50">Avg: ${formatNum(item.avg_volume)}</div>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <span class="text-lg font-black text-indigo-400">${item.score}</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <a href="https://www.tradingview.com/chart/?symbol=NASDAQ:${item.ticker}" target="_blank" class="p-2 rounded-xl bg-zinc-900 text-zinc-500 hover:text-white hover:bg-indigo-600 transition-all inline-block">
+                            <i data-lucide="line-chart" size="16"></i>
+                        </a>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+            initIcons();
+        }
+
+        function updateDashboard(status) {
+            document.getElementById('last-update').innerText = status.last_update || '-';
+            document.getElementById('stat-total').innerText = status.stats.total;
+            document.getElementById('stat-passed').innerText = status.stats.passed;
+            document.getElementById('stat-avg-rvol').innerText = status.stats.avg_rvol;
+            document.getElementById('stat-time').innerText = `${status.stats.duration}s`;
+        }
+
+        function formatNum(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num;
+        }
+
+        function toggleAuto(val) {
+            isAuto = val;
+            const on = document.getElementById('auto-on');
+            const off = document.getElementById('auto-off');
+            
+            if (isAuto) {
+                on.classList.add('bg-indigo-600', 'text-white');
+                off.classList.remove('bg-zinc-800', 'text-zinc-400');
+                off.classList.add('text-zinc-600');
+                // 5분마다 실행
+                autoTimer = setInterval(startScan, 5 * 60 * 1000);
+            } else {
+                on.classList.remove('bg-indigo-600', 'text-white');
+                off.classList.add('bg-zinc-800', 'text-zinc-400');
+                clearInterval(autoTimer);
+            }
+        }
+
+        // 초기화
+        window.onload = () => {
+            initIcons();
+        };
+    </script>
+</body>
+</html>

@@ -80,24 +80,12 @@ export class SearchService {
     const tickerMatch = query.match(/^([A-Z]+)/);
     const ticker = tickerMatch ? tickerMatch[1] : 'STOCK';
     
-    if (ticker === 'CAR') {
-      return `
-[REAL-TIME DATA - SOURCE: ANALYTICS FEEDS]
-검색 쿼리: ${query}
-- [FACT] CAR (Avis Budget Group) Short Interest: 약 26.4% of Float
-- [FACT] Borrow Fee: 연 142.5% (Extremely High)
-- [FACT] Days to Cover: 8.2일
-- [FACT] Reg SHO: 12일 연속 Threshold List 등재 중
-- [FACT] Catalyst: 최근 'violent expansion'으로 불리는 급격한 가격 상승 발생 중. 숏 커버링 강제 청산 압박이 임계점에 도달함.
-      `;
-    }
-
-    // 기타 종목은 기존 랜덤 로직 유지
+    // 티커 이름을 기반으로 한 간단한 해시/시드 생성 (항상 같은 티커는 같은 랜덤값을 갖게 함)
     const seed = ticker.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const si = (20 + (seed % 30)).toFixed(1);
-    const borrowFee = (50 + (seed % 200)).toFixed(0);
-    const float = (seed % 50) + 5;
-    const regShoDays = (seed % 15) + 3;
+    const si = (20 + (seed % 30)).toFixed(1); // 20% ~ 50%
+    const borrowFee = (50 + (seed % 200)).toFixed(0); // 50% ~ 250%
+    const float = (seed % 50) + 5; // 5M ~ 55M
+    const regShoDays = (seed % 15) + 3; // 3 ~ 18 days
 
     return `
 [MOCK DATA - API KEY MISSING]

@@ -4,8 +4,8 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 const MODELS = {
-  default: "gemini-1.5-flash-latest",
-  premium: "gemini-1.5-pro-latest",
+  default: "gemini-1.5-flash",
+  premium: "gemini-1.5-pro",
 };
 
 type ModelType = keyof typeof MODELS;
@@ -91,6 +91,16 @@ export class LLMService {
     const regSho = regShoMatch ? regShoMatch[1] : '5';
 
     if (system.includes('티커만 추출')) {
+      const searchContent = lastMessage.split('[검색 결과]:')[1] || lastMessage;
+      // 예시 문구(예: GME, AMC, CAR)에 포함된 티커를 피하기 위해 패턴 수정
+      const tickers = searchContent.match(/[A-Z]{2,5}/g);
+      if (tickers && tickers.length > 0) {
+        const excluded = ['FACT', 'MOCK', 'DATA', 'SHO', 'FTD', 'API', 'KEY', 'MARKE', 'LIST', 'TOP', 'REAL', 'TIME', 'MISSING'];
+        const filtered = Array.from(new Set(tickers))
+          .filter((t: string) => !excluded.includes(t) && t.length >= 2)
+          .slice(0, 3);
+        return filtered.join(', ');
+      }
       return 'GME, AMC, CAR';
     }
 
