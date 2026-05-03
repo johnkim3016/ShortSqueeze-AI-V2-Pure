@@ -1,41 +1,53 @@
-# AGENTS.md
+# AGENTS.md — ShortSqueeze AI V2 Pure
 
-This repository is designed to be agent-friendly for Hermes, OpenClaw, Codex, Claude Code, and similar coding agents.
+이 저장소는 **Antigravity(Hermes)** 가 오케스트레이션하는 4개 에이전트 팀이 구축한 숏스퀴즈 분석 대시보드입니다.
 
-## Primary goal
-Given only this GitHub URL, an agent should be able to:
-1. clone or update the repo
-2. run the one-click installer
-3. verify Paperclip health
-4. run the first-run wizard or bootstrap from a natural-language prompt
+## 에이전트 팀 구성
 
-## Fastest path for agents
+| 에이전트 | 역할 |
+|---|---|
+| 🕵️ Researcher | 실시간 숏 인터레스트 / FTD / 대차이자율 수집 및 분석 |
+| 💻 Developer | Next.js 15 대시보드 구축 + Netlify 배포 관리 |
+| ✍️ Content Manager | 분석 결과를 방송 대본 / 유튜브 스크립트로 변환 |
+| 🛡️ QA/Critic | The Wall 원칙 기반 팩트체크 및 최종 검증 |
 
-If the user gives only the GitHub URL, do this:
+## 신규 에이전트 빠른 시작
 
-1. Clone or update the repository
-   - `bash <(curl -fsSL https://raw.githubusercontent.com/reallygood83/paperclip-company-factory/main/scripts/install_from_github_url.sh) https://github.com/reallygood83/paperclip-company-factory --dry-run`
+1. **저장소 클론**
+   ```bash
+   git clone https://github.com/johnkim3016/ShortSqueeze-AI-V2-Pure.git
+   cd ShortSqueeze-AI-V2-Pure
+   npm install
+   ```
 
-2. Verify status
-   - `./scripts/status.sh`
+2. **환경변수 설정** (`.env` 파일)
+   ```
+   GEMINI_API_KEY=your_google_ai_studio_key
+   ```
 
-3. Create a first company from prompt
-   - `PYTHONPATH=src python3 -m paperclip_company_factory.cli bootstrap-from-prompt "Create a public AI content studio company for newsletters" --dry-run --format text`
+3. **로컬 실행**
+   ```bash
+   npm run dev
+   # → http://localhost:3000
+   ```
 
-## Preferred execution pattern
-- Start with `--dry-run`
-- Show the text report to the user
-- Ask for approval before the real bootstrap
-- On failure, use `./scripts/status.sh`, `./scripts/restart.sh`, and `./scripts/logs.sh`
+4. **배포 상태 확인**
+   - Netlify 대시보드에서 `ShortSqueeze-AI-V2-Pure` 저장소 연결 여부 확인
 
-## Beginner-friendly commands
-- install: `./scripts/one_click_install.sh --enable-autostart`
-- wizard: `python3 scripts/first_run_wizard.py`
-- status: `./scripts/status.sh`
-- restart: `./scripts/restart.sh`
-- logs: `./scripts/logs.sh`
+## 아키텍처
 
-## Agent hints
-- Prefer `--format text` for user-facing output
-- Prefer `bootstrap-from-prompt` over manual JSON planning for first-run UX
-- Use the repo's own scripts before inventing custom install steps
+```
+사용자 요청
+  → Scanner (RVOL/Volume Surge 감지)
+  → IntegrationService (데이터 통합)
+  → /api/analyze (Gemini 3단계 분석: Researcher → Critic → Editor)
+  → UnifiedDashboard (결과 렌더링)
+```
+
+## 핵심 원칙 (The Wall)
+- 모든 분석은 QA/Critic 에이전트의 검증을 통과해야 함
+- 할루시네이션 방지: 실제 데이터 기반 분석 우선
+- 사부님(김도준) 승인 없이 배포 금지
+
+---
+*Antigravity (오케스트레이터) 작성 | 2026-05-03*
